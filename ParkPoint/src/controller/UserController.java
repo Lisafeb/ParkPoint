@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import dao.UserDao;
 import model.User;
 
@@ -50,7 +52,8 @@ public class UserController extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = new User();
-        user.setPassword(request.getParameter("password"));
+        String pw_hash = BCrypt.hashpw(request.getParameter("password"), BCrypt.gensalt());
+        user.setPassword(pw_hash); 
         user.setFname(request.getParameter("fname"));
         user.setLname(request.getParameter("lname"));
         user.setEmail(request.getParameter("email"));
