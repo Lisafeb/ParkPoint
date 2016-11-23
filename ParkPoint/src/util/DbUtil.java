@@ -11,6 +11,7 @@ import java.util.Properties;
 public class DbUtil {
 
     private static Connection connection = null;
+    private static DbUtil  instance = null;
 
     public static Connection getConnection() {
         if (connection != null)
@@ -38,5 +39,14 @@ public class DbUtil {
             return connection;
         }
 
+    }
+    public static DbUtil getInstance()
+    {
+        
+		if (instance == null)
+        {
+          instance = new DbUtil();
+        }
+        return instance;
     }
 }
