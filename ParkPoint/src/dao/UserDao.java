@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 import model.User;
 import util.DbUtil;
 
@@ -23,7 +26,7 @@ public class UserDao {
             PreparedStatement preparedStatement = connection
                     .prepareStatement("insert into users(password, fname,lname,email, userType) values (?,?, ?, ?, ? )");
             // Parameters start with 1
-            preparedStatement.setString(1, user.getPassword());
+            preparedStatement.setString(1, BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
             preparedStatement.setString(2, user.getFname());
             preparedStatement.setString(3, user.getLname());
             preparedStatement.setString(4, user.getEmail());
