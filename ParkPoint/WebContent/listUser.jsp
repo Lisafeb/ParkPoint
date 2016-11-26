@@ -13,7 +13,7 @@
         <thead>
             <tr>
                 <th>User Id</th>
-                <th>Password</th>
+                <th>Hashed Password</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email</th>
@@ -32,6 +32,7 @@
                     <td><c:out value="${user.userType}" /></td>
                     <td><a href="UserController?action=edit&userId=<c:out value="${user.userid}"/>">Update</a></td>
                     <td><a href="UserController?action=delete&userId=<c:out value="${user.userid}"/>">Delete</a></td>
+                  
                 </tr>
             </c:forEach>
         </tbody>

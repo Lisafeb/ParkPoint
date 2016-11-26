@@ -13,6 +13,8 @@
         
       <p><a href="UserController?action=insert">Add User</a></p>
       <p><a href="UserController?action=listUser">List User</a></p>
+    <a href="LogoutServlet">Logout</a>
+    
       
 </body>
 </html>
