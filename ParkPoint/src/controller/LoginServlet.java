@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import dao.LoginDao;
 
 public class LoginServlet extends HttpServlet{
@@ -23,19 +25,38 @@ public class LoginServlet extends HttpServlet{
         PrintWriter out = response.getWriter();  
         
         String n=request.getParameter("username");  
-        String p=request.getParameter("userpass"); 
+        String p=request.getParameter("password"); 
+        String hashed_pass = null;
+        hashed_pass = LoginDao.validatePass(n);
         
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession();
+        
         if(session!=null)
         session.setAttribute("name", n);
-
-        if(LoginDao.validate(n, p)){  
+        session.setAttribute("password", p);
+       
+        if(LoginDao.validateEmail(n) & BCrypt.checkpw(p, hashed_pass))
+        //if (LoginDao.validateEmail(n) & BCrypt.checkpw("a", "$2a$06$m0CrhHm10qJ3lXRY.5zDGO3rS2KdeeWLuGmsfGlMfOxih58VYVfxe"))
+        {
+        	 out.println("<p entered pass: p </p>");
+        	out.println(p);
+        	 out.println("<p hashed pass </p>");
+        	 out.print(hashed_pass); 
+        	 out.println("<p end </p>");
             RequestDispatcher rd=request.getRequestDispatcher("welcome.jsp");  
             rd.forward(request,response);  
-        }  
+        	}  
         else{  
             out.print("<p style=\"color:red\">Sorry, username or password error</p>");  
+            
+            out.println("<p entered pass: p </p>");
+        	out.println(p);
+        	 out.println("<p hashed pass </p>");
+        	 out.print(hashed_pass); 
+        	 out.println("<p end </p>");
             RequestDispatcher rd=request.getRequestDispatcher("index.jsp");  
+            
+            
             rd.include(request,response);  
         }  
 
