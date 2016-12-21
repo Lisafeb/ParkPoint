@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -53,21 +52,22 @@ html, body, .container, #map {
     }
 
          #divtabel{
-        background-color: #fff;
+      
         box-shadow: 0 0 5px #888;
         font-size: 1.1em;  
         position: absolute;
-        left: 20px;
-        top: 20px;
+       right: 20px;
+        top: 60px;
         padding: 5px;
         overflow: auto;
         height: 400px;
         width: 30%;
         z-index: 40;
-        padding-top: 12px;
-    	padding-bottom: 12px;
+        padding-top: 2px;
+    	padding-bottom: 2px;
     	text-align: left;
     	color: black;
+    	background-color: white;
     	
       }  
 #anunt{
@@ -121,16 +121,16 @@ html, body, .container, #map {
       z-index: 50;
     }
     #raza{
-    width:50px;
+    width:70px;
     }
    #dir{
     display: block;
          position: absolute;
          z-index: 100;
-         top: 500px;
+         top:350px;
          left: 10px;
    }
- 
+
      .arcgisSearch .searchGroup .searchInput {
    width:100px;
   }
@@ -145,11 +145,11 @@ html, body, .container, #map {
 
 /* Set a style for all buttons */
 button {
-    background-color: #4CAF50;
-    color: white;
+   
+    color: Blue;
     padding: 14px 20px;
     margin: 8px 0;
-    border: none;
+   
     cursor: pointer;
     width: 100%;
 }
@@ -158,7 +158,7 @@ button {
 .cancelbtn {
     width: auto;
     padding: 10px 18px;
-    background-color: #f44336;
+    background-color: red;
 }
 
 /* Center the image and position the close button */
@@ -182,28 +182,7 @@ span.psw {
     padding-top: 16px;
 }
 
-/* The Modal (background) */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100px; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    padding-top: 60px;
-}
 
-/* Modal Content/Box */
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-    border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
-}
 
 /* The Close Button (x) */
 .close {
@@ -214,7 +193,18 @@ span.psw {
     font-size: 35px;
     font-weight: bold;
 }
-
+.closeDataTable {
+    position: absolute;
+    right: 270px;
+    top: 40px;
+     background-color:red;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    width: 5%;
+    padding: 5px;
+    margin: 0px;
+}
 .close:hover,
 .close:focus {
     color: red;
@@ -259,261 +249,378 @@ require([
   "esri/urlUtils",
   "esri/dijit/Directions",
   "esri/layers/FeatureLayer", 
-  "esri/tasks/query", "esri/geometry/Circle",
-  "esri/graphic", "esri/InfoTemplate", "esri/symbols/SimpleMarkerSymbol",
-  "esri/symbols/SimpleLineSymbol", "esri/symbols/SimpleFillSymbol", "esri/renderers/SimpleRenderer",
-  "esri/config", "esri/Color",
+  "esri/tasks/query", 
+  "esri/geometry/Circle",
+  "esri/graphic", 
+  "esri/InfoTemplate", 
+  "esri/symbols/SimpleMarkerSymbol",
+  "esri/symbols/SimpleLineSymbol", 
+  "esri/symbols/SimpleFillSymbol", 
+  "esri/renderers/SimpleRenderer",
+  "esri/config", 
+  "esri/Color",
   "esri/dijit/HomeButton",
   "esri/dijit/Search",
   "esri/dijit/LocateButton",
   "esri/dijit/BasemapGallery", 
   "esri/dijit/OverviewMap",
+  "esri/tasks/QueryTask",
+
     "esri/arcgis/utils",
-    "esri/dijit/LayerList","dojo/query",
-    "dojo/on","dojo/dom","dojo/parser",
+    "esri/dijit/LayerList",
+    "dojo/query",
+    "dojo/on",
+    "dojo/dom",
+    "dojo/parser",
     "dojo/domReady!",
     "dijit/layout/BorderContainer",
     "dijit/layout/ContentPane",
    
-], function(Map,  ImageParameters, urlUtils, Directions, FeatureLayer,
-        Query, Circle,
-        Graphic, InfoTemplate, SimpleMarkerSymbol,
-        SimpleLineSymbol, SimpleFillSymbol, SimpleRenderer,
-        esriConfig, Color, HomeButton,Search,LocateButton,BasemapGallery,OverviewMap,
-    arcgisUtils,
-    LayerList, query,on, dom, parser
+], function(Map,  
+		ImageParameters, 
+		urlUtils, 
+		Directions, 
+		FeatureLayer,
+        Query, 
+        Circle,
+        Graphic, 
+        InfoTemplate, 
+        SimpleMarkerSymbol,
+        SimpleLineSymbol, 
+        SimpleFillSymbol, 
+        SimpleRenderer,
+        esriConfig, 
+        Color, 
+        HomeButton,
+        Search,
+        LocateButton,
+        BasemapGallery,
+        OverviewMap, 
+        QueryTask,
+    	arcgisUtils,
+    	LayerList, 
+    	query,
+    	on, 
+    	dom, 
+    	parser
 ) {
 	parser.parse();
 	
-	 urlUtils.addProxyRule({
-	     urlPrefix: "route.arcgis.com",
-	     proxyUrl: "/sproxy/"
-	   });
-	   urlUtils.addProxyRule({
-	     urlPrefix: "traffic.arcgis.com",
-	     proxyUrl: "/sproxy/"
-	   });
-	   
-    //Create a map based on an ArcGIS Online web map id
- map = new Map("map", {
-    	        basemap: "topo",  //For full list of pre-defined basemaps, navigate to http://arcg.is/1JVo6Wd
-    	        extent: new esri.geometry.Extent({ "xmin": 2018841.3785149138, 
-    			     "ymin": 5589649.810197768, "xmax": 3584271.7177949073, 
-    			     "ymax": 6157118.308186765,"spatialReference":{"wkid":102100}}),
-    	        zoom: 7
-    	      });
-    
- var imageParameters = new ImageParameters();
- imageParameters.layerIds = [2];
- imageParameters.layerOption = ImageParameters.LAYER_OPTION_SHOW;
- 
- var featureLayer = new FeatureLayer("http://109.166.213.45:6080/arcgis/rest/services/Disertatie/DizertatieElisa/FeatureServer/0",{
-		mode: FeatureLayer.MODE_ONDEMAND,
-   outFields: ["*"]
-});
- 
- var responsePolygon = new FeatureLayer("http://109.166.213.45:6080/arcgis/rest/services/Disertatie/DizertatieElisa/FeatureServer/1",{
- 	mode: FeatureLayer.MODE_ONDEMAND,
- 	outFields: ['*']
- 
- });
- map.addLayers([featureLayer, responsePolygon]);
- 
+	
+	 //Proxy for directions & route
+	urlUtils.addProxyRule({
+					urlPrefix : "route.arcgis.com",
+					proxyUrl : "http://localhost:8080/ParkPoint/proxy.jsp"
+					});
 
- 
-   
-   
- var symbol = new SimpleMarkerSymbol(
-         SimpleMarkerSymbol.STYLE_CIRCLE, 
-         12, 
-         new SimpleLineSymbol(
-           SimpleLineSymbol.STYLE_NULL, 
-           new Color([247, 34, 101, 0.9]), 
-           1
-         ),
-         new Color([207, 34, 171, 0.5])
-       );
-       featureLayer.setSelectionSymbol(symbol); 
-       
-       var circle="";  
- 
- var circleSymb = new SimpleFillSymbol(
-   SimpleFillSymbol.STYLE_NULL,
-   new SimpleLineSymbol(
-     SimpleLineSymbol.STYLE_SHORTDASHDOTDOT,
-     new Color([105, 105, 105]),
-     2
-   ), new Color([255, 255, 0, 0.25])
- );
- 
-	  on(dom.byId("button"), "click", function()
-			{
-		        var x=document.getElementById("raza").value;
-		        circle = new Circle({
-	            center: evtGlobal.mapPoint,
-	            geodesic: true,
-	            radius: x,
-	            radiusUnit: "esriMiles"
-	        }); 
-		        map.graphics.clear();
-		          map.infoWindow.hide();
-		          var graphic = new Graphic(circle, circleSymb);
-		          map.graphics.add(graphic);
+	urlUtils.addProxyRule({
+					urlPrefix : "traffic.arcgis.com",
+					proxyUrl : "http://localhost:8080/ParkPoint/proxy.jsp"
+				    });
 
-		          var query = new Query();
-		          query.geometry = circle.getExtent();
-		          //use a fast bounding box query. will only go to the server if bounding box is outside of the visible map
-		          featureLayer.queryFeatures(query, selectInBuffer);
-			}); 
-		
+	//Create a map based on an ArcGIS Online web map id
+				map = new Map("map", {
+					basemap : "topo", //For full list of pre-defined basemaps, navigate to http://arcg.is/1JVo6Wd
+					extent : new esri.geometry.Extent({
+						"xmin" : 2018841.3785149138,
+						"ymin" : 5589649.810197768,
+						"xmax" : 3584271.7177949073,
+						"ymax" : 6157118.308186765,
+						"spatialReference" : {
+							"wkid" : 102100
+						}
+					}),
+					zoom : 7
+				});
+	
+	// Directions widget
+				var directions = new Directions({
+					map : map,
+					//routeTaskUrl:"http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
+					geocoderOptions : {
+						autoComplete : true,
+						autoNavigate : false
+					}
+				// --------------------------------------------------------------------
+				// New constuctor option and property showSaveButton added at version
+				// 3.17 to allow saving route. For more information see the API Reference.
+				// https://developers.arcgis.com/javascript/3/jsapi/directions-amd.html#showsavebutton
+				//
+				// Uncomment the line below to add the save button to the Directions widget
+				// --------------------------------------------------------------------
+				// , showSaveButton: true
+				}, "dir");
 
- //when the map is clicked create a buffer around the click point of the specified distance.
- map.on("click", function(evt){
- 	evtGlobal = evt;
-		var x=document.getElementById("raza").value;
-   	circle = new Circle({
-     center: evt.mapPoint,
-     geodesic: true,
-     radius: x,
-     radiusUnit: "esriMiles"
-   });
-   map.graphics.clear();
-   map.infoWindow.hide();
-   var graphic = new Graphic(circle, circleSymb);
-   map.graphics.add(graphic);
-
-   var query = new Query();
-   query.geometry = circle.getExtent();
-   //use a fast bounding box query. will only go to the server if bounding box is outside of the visible map
-   featureLayer.queryFeatures(query, selectInBuffer);
-   
-  
-
-   
- });
-
- function selectInBuffer(response){
- 	console.log("response", response);
-   var feature;
-   var features = response.features;
-   var inBuffer = [];
-   //filter out features that are not actually in buffer, since we got all points in the buffer's bounding box
-   for (var i = 0; i < features.length; i++) {
-     feature = features[i];
-     if(circle.contains(feature.geometry)){
-       inBuffer.push(feature.attributes[featureLayer.objectIdField]);
-     }
-   }
-   var query = new Query();
-   query.objectIds = inBuffer;
-   //use a fast objectIds selection query (should not need to go to the server)
-   featureLayer.selectFeatures(query, FeatureLayer.SELECTION_NEW, function(results){
-     var totalPlaces = sumPlaces(features);
-     console.log("results", results);
-     var r = "";
-     r = "<b>The total number of parking places within the buffer is <i>" + totalPlaces + "</i>.</b>";
-     dom.byId("messages").innerHTML = r;
-   });
- }
- 
- function sumPlaces(features) {
- 	console.log("sum places", features.length);
-   var placesTotal = 0;
-   var content="";
-   //var content= "<button id=\"close\" onclick=\"closeTabel()\">"; 
-  
-   content+="<table  id= \"tabel1\" class=\"display\" cellspacing=\"0\" width=\"100%\"> <thead><tr><th>Parking Places</th> <th>Address</th> </tr></thead><tbody>"
-   console.log("placesTotal", placesTotal);
-   for (var x = 0; x < features.length; x++) {
- 	  console.log("adauga la suma");
- 	 placesTotal = placesTotal + features[x].attributes["OBJECTID"];
-     content+="<tr><td>"+features[x].attributes["Available"]+"</td><td>"+features[x].attributes["OBJECTID"]+"</td></tr>";
-    // content=content+features[x].attributes["Anul_2014"]+features[x].attributes["Localitati"];
-   }
-   content+="</tbody></table>";
-   console.log(content);
-   document.getElementById("divtabel").innerHTML=content;
-   document.getElementById('divtabel3').style.display = 'block';
-/*         $('#tabel1').DataTable(
- 		  {
- 			  "scrollY": "200px",
- 			  "scrollCollapse": true,
- 			  "paging": false,
- 			  "autoClose": true, 
- 		  }); */
-  
-  $('#tabel1').DataTable();
-//  $('#divtabel').dialog();	  
-   
-   return placesTotal;
- 
-   console.log("placesTotal after", placesTotal);
-   
- }
- 
-
- var search = new Search({
-     map: map
-  }, "search");
-  search.startup();
-  
-  
- var home = new HomeButton({
-     map: map
-   }, "HomeButton");
-   home.startup();
-   
-   var geoLocate = new LocateButton({
-	   map: map,
-	   highlightLocation: false
-	   }, "LocateButton"
-	 );
-	 geoLocate.startup();
-	 
-	 //add the basemap gallery, in this case we'll display maps from ArcGIS.com including bing maps
-     var basemapGallery = new BasemapGallery({
-       showArcGISBasemaps: true,
-       map: map
-     }, "basemapGallery");
-     basemapGallery.startup();
-     
-     basemapGallery.on("error", function(msg) {
-       console.log("basemap gallery error:  ", msg);
-     });
-
-	   
-			var modal = document.getElementById('id01');
-
-			// When the user clicks anywhere outside of the modal, close it
-			window.onclick = function(event) {
-			    if (event.target == modal) {
-			        modal.style.display = "none";
-			    }
-			}
-			
-			  on(dom.byId("poligoane"), "change", updateVisibility);
-	          on(dom.byId("puncte"), "change", updateVisibility);
-		
-			
-			function updateVisibility(){
+				directions.startup();
 				
-				var inputs = query(".boxcheck");
-				 if (document.getElementById("poligoane").checked) {
-					 responsePolygon.setVisibility(true);
-		              }
-				 else if (document.getElementById("poligoane").checked == false){
-					 responsePolygon.setVisibility(false);
-				     }
-				 var inputs = query(".boxcheck2");
-				  if ( document.getElementById("puncte").checked ) {
-					 featureLayer.setVisibility(true);
-				 } 
-				 else if (document.getElementById("puncte").checked == false){
-					 featureLayer.setVisibility(false);
-			     }
-			}
+				
+				var imageParameters = new ImageParameters();
+				imageParameters.layerIds = [ 2 ];
+				imageParameters.layerOption = ImageParameters.LAYER_OPTION_SHOW;
 
-});
+	//Points layer			
+	var featureLayer = new FeatureLayer(
+			"http://109.166.213.45:6080/arcgis/rest/services/Disertatie/DizertatieElisa/FeatureServer/0",
+			{
+				mode : FeatureLayer.MODE_ONDEMAND,
+				outFields : [ '*' ]
+			});
+	//Polygon layer
+	var responsePolygon = new FeatureLayer(
+			"http://109.166.213.45:6080/arcgis/rest/services/Disertatie/DizertatieElisa/FeatureServer/1",
+			{
+				mode : FeatureLayer.MODE_ONDEMAND,
+				outFields : [ '*' ]
+			});
+	//Add layers on the map
+	map.addLayers([ featureLayer, responsePolygon ]);
+
+		
+	//Query pe feature, preia toate atributele
+	var queryTask = new QueryTask(
+				"http://109.166.213.45:6080/arcgis/rest/services/Disertatie/DizertatieElisa/MapServer/0");
+
+	var query = new Query();
+	query.returnGeometry = false;
+	query.outFields = [ "*" ];
+
+	//Query la click pe punct
+	// responsePolygon.on("click", execute); 
+	featureLayer.on("click", execute);
+
+	//Executa showResults
+	function execute() {
+			query.geometry = event.mapPoint;
+			queryTask.execute(query, showResults);
+			}
+	
+	//Creeaza simbolul pentru buffer
+	var symbol = new SimpleMarkerSymbol(
+			SimpleMarkerSymbol.STYLE_CIRCLE, 12,
+			new SimpleLineSymbol(SimpleLineSymbol.STYLE_NULL,
+			new Color([ 247, 34, 101, 0.9 ]), 1),
+			new Color([ 207, 34, 171, 0.5 ]));
+			featureLayer.setSelectionSymbol(symbol);
+
+				var circle = "";
+
+				var circleSymb = new SimpleFillSymbol(
+						SimpleFillSymbol.STYLE_NULL, new SimpleLineSymbol(
+								SimpleLineSymbol.STYLE_SHORTDASHDOTDOT,
+								new Color([ 105, 105, 105 ]), 2), new Color([
+								255, 255, 0, 0.25 ]));
+	//Preia raza noua din input
+		 	on(dom.byId("button"), "click", function() {
+					var x = document.getElementById("raza").value;
+					circle = new Circle({
+						center : evtGlobal.mapPoint,
+						geodesic : true,
+						radius : x,
+						radiusUnit : "esriMiles"
+					});
+					map.graphics.clear();
+					map.infoWindow.hide();
+					var graphic = new Graphic(circle, circleSymb);
+					map.graphics.add(graphic);
+	//Query pentru selectInBuffer
+					var query = new Query();
+					query.geometry = circle.getExtent();
+					//use a fast bounding box query. will only go to the server if bounding box is outside of the visible map
+					featureLayer.queryFeatures(query, selectInBuffer);
+				}); 
+
+	//when the map is clicked create a buffer around the click point of the specified distance.
+				map.on("click", function(evt) {
+					evtGlobal = evt;
+					var x = document.getElementById("raza").value;
+
+					circle = new Circle({
+						center : evt.mapPoint,
+						geodesic : true,
+						radius : x,
+						radiusUnit : "esriMiles"
+					});
+					map.graphics.clear();
+					map.infoWindow.hide();
+					var graphic = new Graphic(circle, circleSymb);
+					map.graphics.add(graphic);
+
+					var query = new Query();
+					query.geometry = circle.getExtent();
+					//use a fast bounding box query. will only go to the server if bounding box is outside of the visible map
+					featureLayer.queryFeatures(query, showResults);
+
+				});
+//Show feature attributes in popup
+				function showResults(results) {
+					
+					console.log("showResults");
+					var resultItems = [];
+					var resultCount = results.features.length;
+					var content = "";
+					console.log(results, "results");
+					console.log(resultItems, "resultItems");
+					if (resultCount!== 0)
+					{
+					console.log(results.features.length, "resultCount");
+					for (var i = 0; i < resultCount; i++) {
+						var featureAttributes = results.features[i].attributes;
+						for ( var attr in featureAttributes) {
+							content += "<p>" + attr.fontcolor("red").bold()
+									+ "&nbsp &nbsp" + "<p>"
+									+ featureAttributes[attr] + "<br>";
+						}
+
+					}
+					console.log(content, "content");
+					
+					dom.byId("dialog").innerHTML = content;
+					$('#dialog').dialog({
+						autoOpen : false,
+						show : {
+							effect : "blind",
+							duration : 1000
+						},
+						hide : {
+							effect : "blind",
+							duration : 1000
+						},
+						width : 600,
+						height : 500,
+						stack : true,
+					});
+					
+						
+					
+					
+						$("#dialog").dialog("open");
+					} 
+				content="";
+				}
+
+				function selectInBuffer(response) {
+					console.log("response", response);
+					var feature;
+					var features = response.features;
+					var inBuffer = [];
+					//filter out features that are not actually in buffer, since we got all points in the buffer's bounding box
+					for (var i = 0; i < features.length; i++) {
+						feature = features[i];
+						if (circle.contains(feature.geometry)) {
+							inBuffer.push(feature.attributes[featureLayer.objectIdField]);
+						}
+					}
+					var query = new Query();
+					query.objectIds = inBuffer;
+					//use a fast objectIds selection query (should not need to go to the server)
+					featureLayer.selectFeatures(query,
+									FeatureLayer.SELECTION_NEW,
+									function(results) {
+										var totalPlaces = sumPlaces(features);
+										console.log("results", results);
+										var r = "";
+										r = "<b>The total number of parking places within the buffer is <i>"
+												+ totalPlaces + "</i>.</b>";
+										// dom.byId("messages").innerHTML = r;
+									});
+				}
+
+				function sumPlaces(features) {
+					console.log("sum places", features.length);
+					var placesTotal = 0;
+					var content = "";
+				//	var content = "<button id=\"close\" onclick=\"closeDataTabel()\">";
+
+					content += "<table  id= \"tabel1\" class=\"display\" cellspacing=\"0\" width=\"100%\"> <thead><tr><th>Parking Places</th> <th>Address</th> </tr></thead><tbody>"
+					console.log("placesTotal", placesTotal);
+					for (var x = 0; x < features.length; x++) {
+						console.log("adauga la suma");
+						placesTotal = placesTotal
+								+ features[x].attributes["OBJECTID"];
+						content += "<tr><td>"
+								+ features[x].attributes["Available"]
+								+ "</td><td>"
+								+ features[x].attributes["OBJECTID"]
+								+ "</td></tr>";
+						// content=content+features[x].attributes["Anul_2014"]+features[x].attributes["Localitati"];
+					}
+					content += "</tbody></table>";
+					console.log(content);
+					document.getElementById("divtabel").innerHTML = content;
+					document.getElementById('divtabel3').style.display = 'block';
+					/*         $('#tabel1').DataTable(
+					 {
+					 "scrollY": "200px",
+					 "scrollCollapse": true,
+					 "paging": false,
+					 "autoClose": true, 
+					 }); */
+
+					$('#tabel1').DataTable();
+					//  $('#divtabel').dialog();	  
+
+					return placesTotal;
+
+					console.log("placesTotal after", placesTotal);
+
+				}
+
+				var search = new Search({
+					map : map
+				}, "search");
+				search.startup();
+
+				var home = new HomeButton({
+					map : map
+				}, "HomeButton");
+				home.startup();
+
+				var geoLocate = new LocateButton({
+					map : map,
+					highlightLocation : false
+				}, "LocateButton");
+				geoLocate.startup();
+
+				//add the basemap gallery, in this case we'll display maps from ArcGIS.com including bing maps
+				var basemapGallery = new BasemapGallery({
+					showArcGISBasemaps : true,
+					map : map
+				}, "basemapGallery");
+				basemapGallery.startup();
+
+				basemapGallery.on("error", function(msg) {
+					console.log("basemap gallery error:  ", msg);
+				});
+
+				var modal = document.getElementById('id01');
+
+				// When the user clicks anywhere outside of the modal, close it
+				window.onclick = function(event) {
+					if (event.target == modal) {
+						modal.style.display = "none";
+					}
+				}
+
+				on(dom.byId("poligoane"), "change", updateVisibility);
+				on(dom.byId("puncte"), "change", updateVisibility);
+
+				function updateVisibility() {
+
+					var inputs = dojo.query(".boxcheck");
+					if (document.getElementById("poligoane").checked) {
+						responsePolygon.setVisibility(true);
+					} else if (document.getElementById("poligoane").checked == false) {
+						responsePolygon.setVisibility(false);
+					}
+					var inputs = dojo.query(".boxcheck2");
+					if (document.getElementById("puncte").checked) {
+						featureLayer.setVisibility(true);
+					} else if (document.getElementById("puncte").checked == false) {
+						featureLayer.setVisibility(false);
+					}
+				}
+
+			});
 </script>
 </head>
 <body class="calcite">
@@ -546,22 +653,25 @@ data-dojo-props="design:'headline',gutters:false">
 				<input type="checkbox" class="boxcheck" id="poligoane" value="ParkingLots"  checked>Parking lots<br>
 				<input type="checkbox" class="boxcheck2" id="puncte" value="ParkingSpots"  checked>Parking spots 
 			</form>  
-  <div id="razaBuffer" >Radius (km):
-  <input id="raza" type="number" min="1" value="5">
-  <button class="button" id="button" style="width: 57px; height: 28px; ">Apply</button>
-  </div>
-  <div id="search"></div>
+ 	 <div id="razaBuffer" >Radius (km):
+ 	 <input id="raza" type="number" min="1" value="5">
+	  <button class="button" id="button" value="Apply" style="width: 30%; height: 28px; ">Go</button>
+ 	 </div>
+  	 <div id="dir"></div>
+  	<div id="search"></div>
  
-  
+   
 
 </div> 
 
-<div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'"></div>
+<div id="map" data-dojo-type="dijit/layout/ContentPane" 
+			data-dojo-props="region:'right'" style="width: 77%; height:100%; overflow: hidden;">
   <div id="mapDiv"></div>
-    
-    <div  id="divtabel3" style="display: none" >
-  <div id="divtabel" style="position:absolute"></div>
-   <button class="button" id="close" style="z-index: 100; width: 46px" onclick="document.getElementById('divtabel3').style.display = 'none';">X</button> 
+   
+	<div id="dialog" title="Details"  style="background:white"></div>
+	   <div  id="divtabel3" style="display: none" >
+  		<div id="divtabel" style="position:absolute"></div>
+ <button class="closeDataTable" style="z-index: 100" onclick="document.getElementById('divtabel3').style.display = 'none';">Close</button> </div>
    </div>
  
  
