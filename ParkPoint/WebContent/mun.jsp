@@ -64,7 +64,10 @@ html, body {
 	text-align: left;
 	color: black;
 }
-
+ label {
+    display: inline-block;
+    width: 5em;
+  }
 .templatePicker {
 	border: none;
 }
@@ -278,10 +281,10 @@ html, body {
 												newGraphic.attributes.TotalCapacity = document.getElementById("TotalCapacityInput").value;
 												newGraphic.attributes.TotalDisabledParking = document.getElementById("TotalDisabledParkingInput").value;
 												newGraphic.attributes.OperationalDays = document.getElementById("OperationalDaysInput").value;
-												newGraphic.attributes.OperationalHours = document	.getElementById("OperationalHoursInput").value;
-												newGraphic.attributes.Restrictions = document	.getElementById("RestrictionsInput").value;
-												newGraphic.attributes.TimeLimit = document	.getElementById("TimeLimitInput").value;
-												newGraphic.attributes.OwnedBy = document	.getElementById("OwnedByInput").value;
+												newGraphic.attributes.OperationalHours = document.getElementById("OperationalHoursInput").value;
+												newGraphic.attributes.Restrictions = document.getElementById("RestrictionsInput").value;
+												newGraphic.attributes.TimeLimit = document.getElementById("TimeLimitInput").value;
+												newGraphic.attributes.OwnedBy = document.getElementById("OwnedByInput").value;
 
 												responsePolygon.applyEdits(null,[ newGraphic ], null,function(e) {
 																	drawToolbar.deactivate();
@@ -294,10 +297,7 @@ html, body {
 
 												var r = confirm("Are you sure you want to delete this object?");
 												if (r == true) {
-													responsePolygon.applyEdits(
-															null, null,
-															[ newGraphic ],
-															function(e) {
+													responsePolygon.applyEdits(null, null,[ newGraphic ],function(e) {
 															});
 													alert("This object was deleted successfully.");
 													$('#dialogPolygon').dialog(
@@ -393,8 +393,7 @@ html, body {
 												newGraphic.attributes.Paid = document.getElementById("PaidInput").value;
 												newGraphic.attributes.Available = document.getElementById("AvailableInput").value;
 
-												responsePoints.applyEdits(null,[ newGraphic ],null,
-																function(e) {
+												responsePoints.applyEdits(null,[ newGraphic ],null,function(e) {
 																	drawToolbar.deactivate();
 																	$('#dialogShow').dialog("close");
 
@@ -425,21 +424,21 @@ html, body {
 					$('#dialogShow').dialog("open");
 				}
 			    
-		        var queryTask = new QueryTask(
+		         var queryTask = new QueryTask(
 				"http://109.166.213.45:6080/arcgis/rest/services/Disertatie/DizertatieElisa/MapServer/0");
-
+		       
 				var query = new Query();
 						query.returnGeometry = false;
 						query.outFields = [ "*" ];
-
 						$('#statistics').on('click', execute);
-
+						
 				function execute() {
-						query.geometry = event.mapPoint;
-						queryTask.execute(query, showStats);
+					console.log("exec");
+						query.geometry = event.mapPolygon;
+						//queryTask.execute(query, showStats);
 						}
-				function showStats(features) {
-					console.log("showResults");
+				/* function showStats(features) {
+					console.log("showStats");
 					var resultItems = [];
 					var resultCount = results.features.length;
 					var content = "";
@@ -448,38 +447,50 @@ html, body {
 					
 					console.log(results.features.length, "resultCount");
 					for (var i = 0; i < resultCount; i++) {
-						var featureAttributes = results.features[i].attributes;
+						
+					
+					 	var featureAttributes = results.features[i].attributes;
 						for ( var attr in featureAttributes) {
 							content += "<p>" + attr.fontcolor("red").bold()
 									+ "&nbsp &nbsp" + "<p>"
 									+ featureAttributes[attr] + "<br>";
-						}
+						} 
 
 					}
 					console.log(content, "content");
 					
 					dom.byId("dialog").innerHTML = content;
-					$('#dialog').dialog({
-						autoOpen : false,
-						show : {
-							effect : "blind",
-							duration : 1000
-						},
-						hide : {
-							effect : "blind",
-							duration : 1000
-						},
-						width : 600,
-						height : 500,
-						stack : true,
-					});
-					
-					$("#dialog").dialog("open");
-					
-				content="";
-				}
-
-						
+ */					
+				
+			
+				$('#example').dialog({
+					autoOpen : false,
+					show : {
+						effect : "blind",
+						duration : 1000
+					},
+					hide : {
+						effect : "blind",
+						duration : 1000
+					},
+					width : 600,
+					height : 500,
+					stack : true,
+				});
+				
+				
+				$('#statistics').on('click',function(){
+					$("#example").dialog("open");
+				$(document).ready(function() {
+				    var table = $('#example').DataTable();
+				     
+				  
+				} );
+				});	
+				
+				 $( function() {
+					    $( document ).tooltip();
+					  } );
 				function initEditor(evt) {
 					var templateLayers = arrayUtils.map(evt.layers, function(
 							result) {
@@ -631,13 +642,13 @@ html, body {
 
 				function updateVisibility() {
 
-					var inputs = query(".boxcheck");
+					var inputs = dojo.query(".boxcheck");
 					if (document.getElementById("poligoane").checked) {
 						responsePolygon.setVisibility(true);
 					} else if (document.getElementById("poligoane").checked == false) {
 						responsePolygon.setVisibility(false);
 					}
-					var inputs = query(".boxcheck2");
+					var inputs = dojo.query(".boxcheck2");
 					if (document.getElementById("puncte").checked) {
 						responsePoints.setVisibility(true);
 					} else if (document.getElementById("puncte").checked == false) {
@@ -658,15 +669,17 @@ html, body {
 		<div data-dojo-type="dijit/layout/ContentPane"data-dojo-props="region:'left'"
 			style="width: 20%; height: 100%; overflow: hidden;">
 			
-			 <img src="pictures/ParkPoint-full-black.png"  width="60%" alt="">		 
-			 <p><b>Create</b> a new parking lot 
+			<a href="index.html" >
+   
+   <input type="image" title="Go to Homepage" src="pictures/ParkPoint-full-black.png"  width="60%" >	</a>	 
+			 <p id="create"  title="Select an object and then click on the map to create it" ><b>Create</b> a new parking lot 
 			 <br>or individual parking place:
 			</p><div id="templateDiv"></div>
 			
 			
 			<p>__________
 		
-			</p><form id="strat" action=""><b>Legend |</b>  Set layer visibility <br>
+			</p><form id="strat" action="" title="Unchecking a box will hide selected layer"><b>Legend |</b>  Set layer visibility <br>
 			
 				<input type="checkbox" class="boxcheck" id="poligoane" value="Parking lots"  checked>Parking lots<br>
 				<input type="checkbox" class="boxcheck2" id="puncte" value="Parking Places"  checked>Parking Places 
@@ -675,8 +688,11 @@ html, body {
 		<p>__________
 			</p><p><b>Analyze</b> city wide statistics 
 			<br>of occupancy rate:</p>
-			<input type="button" id="statistics" value="Statistics" >
-		
+			
+			<input type="button" title="Open daily statistics based on occupancy rate of the parking lots" id="statistics" value="Statistics" >
+		<table id="example" class="display" cellspacing="0" width="100%">
+       
+    </table>
 		</div>
 		<div id="map" data-dojo-type="dijit/layout/ContentPane" 
 			data-dojo-props="region:'right'" style="width: 80%; height: 100%; overflow: hidden;">

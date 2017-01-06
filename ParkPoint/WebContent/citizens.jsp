@@ -106,6 +106,28 @@ html, body, .container, #map {
       left: 10px;
       z-index: 50;
     }
+     .tooltip  {
+  position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted gray; /* If you want dots under the hoverable text */
+    }
+ .tooltip .tooltiptext {
+  visibility: hidden;
+   
+    background-color: gray;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+   width: 30%;
+    bottom: 100%;
+   
+    margin-left: -80px; /* Use half of the width (120/2 = 60), to center the tooltip */
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    }
       #search {
         display: block;
          position: absolute;
@@ -564,7 +586,8 @@ require([
 					console.log("placesTotal after", placesTotal);
 
 				}
-
+			
+				 
 				var search = new Search({
 					map : map
 				}, "search");
@@ -577,7 +600,7 @@ require([
 
 				var geoLocate = new LocateButton({
 					map : map,
-					highlightLocation : false
+					highlightLocation : true
 				}, "LocateButton");
 				geoLocate.startup();
 
@@ -642,22 +665,25 @@ data-dojo-props="design:'headline',gutters:false">
     
      
      
-   <a href="index.html" >
+   <a href="index.html" > 
    
    <input type="image" src="pictures/ParkPoint-full-black.png"  width="60%" >	</a>
 
        
     <img id="imgParking" src="http://tinyurl.com/jolm73r" alt="some_text" style="width:25px;height:height;">
     <img id="imgParking2" src="http://tinyurl.com/hnu76v9" alt="some_text" style="width:25px;height:height;">
-          <form id="strat">Check the desired layer<br>
+          <form id="strat" title="Unchecking a box will hide selected layer">Check the desired layer<br>
 				<input type="checkbox" class="boxcheck" id="poligoane" value="ParkingLots"  checked>Parking lots<br>
 				<input type="checkbox" class="boxcheck2" id="puncte" value="ParkingSpots"  checked>Parking spots 
 			</form>  
- 	 <div id="razaBuffer" >Radius (km):
- 	 <input id="raza" type="number" min="1" value="5">
+ 	 <div id="razaBuffer" title="Click on the map, input a desired radius then click Go to display the available parking lots in the selected radius" >Radius (km):
+ 	  
+ 	 <input  id="raza" type="number" min="1" value="5">
 	  <button class="button" id="button" value="Apply" style="width: 30%; height: 28px; ">Go</button>
  	 </div>
-  	 <div id="dir"></div>
+ 	 	
+ 	 
+  	 <div title="Locate yourself and then click on the desired parking place to get directions" id="dir"></div>
   	<div id="search"></div>
  
    
