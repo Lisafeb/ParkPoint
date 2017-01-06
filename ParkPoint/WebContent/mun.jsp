@@ -64,10 +64,11 @@ html, body {
 	text-align: left;
 	color: black;
 }
- label {
+ labelHover {
     display: inline-block;
     width: 5em;
   }
+ 
 .templatePicker {
 	border: none;
 }
@@ -351,6 +352,9 @@ html, body {
 						available = evt.graphic.attributes.Available;
 					}
 					;
+					if (evt.graphic.attributes.AvailabilityRate != null) {
+						availabilityRate = evt.graphic.attributes.AvailabilityRate;
+					};
 
 					content2 += "<p>Lot ID: </p> <input id='LotIDInput' value='"+lotID+"'/> <br>"
 							+ "<p>Disabled Parking: </p> <input type='text' id='DisabledParkingInput' value='"+disabledParking+"'/>  <br>"
@@ -365,7 +369,7 @@ html, body {
 						content2 += "<p>Available: </p> <select id='AvailableInput'><option value="+evt.graphic.attributes.Available+"> "
 								+ evt.graphic.attributes.Available
 								+ "</option><option value='Yes'>Yes</option></select> <br>";
-
+						content2+="<p>AvailabilityRate: </p>  "+availabilityRate+"<br>";
 					newGraphic = evt.graphic;
 
 					$("#dialogShow")
@@ -391,8 +395,16 @@ html, body {
 												newGraphic.attributes.DisabledParking = document.getElementById("DisabledParkingInput").value;
 												newGraphic.attributes.AccessType = document.getElementById("AccessTypeInput").value;
 												newGraphic.attributes.Paid = document.getElementById("PaidInput").value;
+											
+												if (newGraphic.attributes.Available == 'Yes' && document.getElementById("AvailableInput").value == 'No') 
+												{
+													console.log(newGraphic.attributes.Available, "newGraphic.attributes.Available");
+													console.log(availabilityRateInt, "availabilityRateInt");
+													var availabilityRateInt = parseInt(newGraphic.attributes.AvailabilityRate);
+													availabilityRateInt=availabilityRateInt+1;
+													newGraphic.attributes.AvailabilityRate=availabilityRateInt;
+												};
 												newGraphic.attributes.Available = document.getElementById("AvailableInput").value;
-
 												responsePoints.applyEdits(null,[ newGraphic ],null,function(e) {
 																	drawToolbar.deactivate();
 																	$('#dialogShow').dialog("close");
@@ -427,41 +439,40 @@ html, body {
 		         var queryTask = new QueryTask(
 				"http://109.166.213.45:6080/arcgis/rest/services/Disertatie/DizertatieElisa/MapServer/0");
 		       
-				var query = new Query();
-						query.returnGeometry = false;
-						query.outFields = [ "*" ];
-						$('#statistics').on('click', execute);
+		         query = new Query();
+		         query.returnGeometry = false;
+		         query.where ="1=1";
+		         query.outFields = ["LotID", "Available", "AvailabilityRate"];
+						
+				$('#statistics').on('click', execute);
 						
 				function execute() {
-					console.log("exec");
-						query.geometry = event.mapPolygon;
-						//queryTask.execute(query, showStats);
+					
+						query.geometry = event.mapPoint;
+						responsePoints.queryFeatures(query, showStats);
+						//queryTask.execute(query, showStats);	
+						console.log("exec");
 						}
-				/* function showStats(features) {
-					console.log("showStats");
-					var resultItems = [];
-					var resultCount = results.features.length;
-					var content = "";
-					console.log(results, "results");
-					console.log(resultItems, "resultItems");
-					
-					console.log(results.features.length, "resultCount");
-					for (var i = 0; i < resultCount; i++) {
-						
-					
-					 	var featureAttributes = results.features[i].attributes;
-						for ( var attr in featureAttributes) {
-							content += "<p>" + attr.fontcolor("red").bold()
-									+ "&nbsp &nbsp" + "<p>"
-									+ featureAttributes[attr] + "<br>";
-						} 
-
-					}
-					console.log(content, "content");
-					
-					dom.byId("dialog").innerHTML = content;
- */					
 				
+				 function showStats(results) {
+					 var resultItems = [];
+			          var resultCount = results.features.length;
+			          console.log(results.features.length, "resultCount");
+					var statsContent = "";
+					statsContent+="<table  id= \"statsTable\" class=\"display\" cellspacing=\"0\" width=\"100%\"> <thead><tr><th>Parking place</th> <th> Times accessed today</th><th>Available</th>  </tr></thead><tbody>"
+				         
+					for (var i = 0; i < resultCount; i++) 
+					{
+						statsContent+="<tr><td>"+results.features[i].attributes["LotID"]+"</td><td>"+results.features[i].attributes["AvailabilityRate"]+"</td>+<td>"+results.features[i].attributes["Available"]+"</td></tr>";
+				    }
+					statsContent+="</tbody></table>";
+					
+					console.log(statsContent, "statsContent");
+				
+					//dom.byId("example").innerHTML = content;
+ 					 document.getElementById("example").innerHTML = statsContent;
+
+ 					
 			
 				$('#example').dialog({
 					autoOpen : false,
@@ -474,23 +485,29 @@ html, body {
 						duration : 1000
 					},
 					width : 600,
-					height : 500,
+					height : 550,
 					stack : true,
 				});
 				
+				var d = (new Date()).toString().split(' ').splice(1,3).join(' ');
+					
+				 	$(document).ready(function() {
+				 		var table = $('#statsTable').DataTable();
+					} );
+				 	   table= $("#example").dialog("open");
+					
+				 	  $('#example tbody').on('click', 'tr', function () {
+				 		 var table = $('#statsTable').DataTable();
+				 	        var data = table.row( this ).data();
+				 	        alert( 'You clicked on statistics for parking spot: '+data[0]+' today, '+d+' ' );
+				 	    } );
+				 };  // end showStats
 				
-				$('#statistics').on('click',function(){
-					$("#example").dialog("open");
-				$(document).ready(function() {
-				    var table = $('#example').DataTable();
-				     
-				  
-				} );
-				});	
 				
 				 $( function() {
 					    $( document ).tooltip();
 					  } );
+				 
 				function initEditor(evt) {
 					var templateLayers = arrayUtils.map(evt.layers, function(
 							result) {
@@ -690,7 +707,7 @@ html, body {
 			<br>of occupancy rate:</p>
 			
 			<input type="button" title="Open daily statistics based on occupancy rate of the parking lots" id="statistics" value="Statistics" >
-		<table id="example" class="display" cellspacing="0" width="100%">
+			<div id="example" ></div>
        
     </table>
 		</div>
@@ -710,8 +727,7 @@ html, body {
 			
 			<div id="error1"  style="position: absolute;"></div>		
 				<div id="dialog" title="Details"  style="background: white"></div>
-	  			 <div  id="divtabel3" style="display: none" >
-			<div id="divtabel" style="position: absolute"></div>
+	  		
 			</div>		
 
 		</div>				
