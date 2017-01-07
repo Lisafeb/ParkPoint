@@ -324,6 +324,9 @@ html, body {
 
 					console.log("on click ", evt.graphic);
 					var lotID = "";
+					
+					// OBS!!! Here, the disabledParking attribute refers to the date&time when the parking place was 
+					//occupied last. 
 					var disabledParking = "";
 					var accessType = "";
 					var paid = "";
@@ -356,20 +359,20 @@ html, body {
 						availabilityRate = evt.graphic.attributes.AvailabilityRate;
 					};
 
-					content2 += "<p>Lot ID: </p> <input id='LotIDInput' value='"+lotID+"'/> <br>"
-							+ "<p>Disabled Parking: </p> <input type='text' id='DisabledParkingInput' value='"+disabledParking+"'/>  <br>"
-							+ "<p>Access type: </p> <input id='AccessTypeInput' value='"+accessType+"'/><br>"
-							+ "<p>Paid: </p> <input id='PaidInput' value='"+paid+"'/><br>";
+					content2 += "<p><b>Lot ID:</b> </p> <input id='LotIDInput' value='"+lotID+"'/> <br>"
+							+ "<p><b>Last Time Occupied:</b> </p> <input type='text' id='DisabledParkingInput' value='"+disabledParking+"'/>  <br>"
+							+ "<p><b>Average occupation time:</b> </p> "+accessType+" minutes <br>"
+							+ "<p><b>Paid:</b> </p> <input id='PaidInput' value='"+paid+"'/><br>";
 
 					if (evt.graphic.attributes.Available == "Yes") {
-						content2 += "<p>Available: </p> <select id='AvailableInput'><option value="+evt.graphic.attributes.Available+"> "
+						content2 += "<p><b>Available:</b> </p> <select id='AvailableInput'><option value="+evt.graphic.attributes.Available+"> "
 								+ evt.graphic.attributes.Available
 								+ "</option><option value='No'>No</option></select> <br>";
 					} else
-						content2 += "<p>Available: </p> <select id='AvailableInput'><option value="+evt.graphic.attributes.Available+"> "
+						content2 += "<p><b>Available:</b> </p> <select id='AvailableInput'><option value="+evt.graphic.attributes.Available+"> "
 								+ evt.graphic.attributes.Available
 								+ "</option><option value='Yes'>Yes</option></select> <br>";
-						content2+="<p>AvailabilityRate: </p>  "+availabilityRate+"<br>";
+						content2+="<p><b>Availability Rate:</b> </p> It was occupied "+availabilityRate+" times<br>";
 					newGraphic = evt.graphic;
 
 					$("#dialogShow")
@@ -393,17 +396,52 @@ html, body {
 
 												newGraphic.attributes.LotID = document.getElementById("LotIDInput").value;
 												newGraphic.attributes.DisabledParking = document.getElementById("DisabledParkingInput").value;
-												newGraphic.attributes.AccessType = document.getElementById("AccessTypeInput").value;
+											//	newGraphic.attributes.AccessType = document.getElementById("AccessTypeInput").value;
 												newGraphic.attributes.Paid = document.getElementById("PaidInput").value;
-											
+											//if a parking place becomes occupied
 												if (newGraphic.attributes.Available == 'Yes' && document.getElementById("AvailableInput").value == 'No') 
 												{
+													//increase Number of occupations
 													console.log(newGraphic.attributes.Available, "newGraphic.attributes.Available");
 													console.log(availabilityRateInt, "availabilityRateInt");
 													var availabilityRateInt = parseInt(newGraphic.attributes.AvailabilityRate);
 													availabilityRateInt=availabilityRateInt+1;
 													newGraphic.attributes.AvailabilityRate=availabilityRateInt;
-												};
+													//save occupation time in disabledParking attribute
+													var occupationTimeStart = new Date();
+													newGraphic.attributes.DisabledParking=occupationTimeStart.toString();
+	
+												}
+													//else show how much time the parking lot was last occupied
+													else
+														if (newGraphic.attributes.Available == 'No' && document.getElementById("AvailableInput").value == 'Yes')
+														{
+														var occupationTimeEnd=new Date;
+														var time2ms= occupationTimeEnd.getTime(occupationTimeEnd); //i get the time in ms  
+														console.log("it was eliberated", occupationTimeEnd);
+														var occupationTimeStart = new Date(newGraphic.attributes.DisabledParking);
+														var time1ms= occupationTimeStart.getTime(occupationTimeStart); 
+														console.log("it was occupied", occupationTimeStart);
+													
+														var difference = time2ms-time1ms;
+														var lastDuration  = Math.floor(difference % 36e5 / 60000)
+														newGraphic.attributes.AccessType =lastDuration;
+													    console.log("occupation duration", newGraphic.attributes.AccessType);
+													    
+														//now average the total
+														timesItWasOccupied = parseInt(newGraphic.attributes.AvailabilityRate);
+														console.log("timesItWasOccupied", timesItWasOccupied);
+														var previousAverage = parseInt(newGraphic.attributes.AccessType);
+														console.log("previous average", previousAverage);
+														var newAverage = (previousAverage * timesItWasOccupied + lastDuration) / (1 + timesItWasOccupied);
+													    
+														newGraphic.attributes.AccessType = newAverage;
+														console.log("current average", newAverage) ;
+													};
+													
+											//	};
+												
+												
 												newGraphic.attributes.Available = document.getElementById("AvailableInput").value;
 												responsePoints.applyEdits(null,[ newGraphic ],null,function(e) {
 																	drawToolbar.deactivate();
@@ -442,7 +480,7 @@ html, body {
 		         query = new Query();
 		         query.returnGeometry = false;
 		         query.where ="1=1";
-		         query.outFields = ["LotID", "Available", "AvailabilityRate"];
+		         query.outFields = ["LotID", "DisabledParking","AccessType","Available", "AvailabilityRate"];
 						
 				$('#statistics').on('click', execute);
 						
@@ -459,11 +497,11 @@ html, body {
 			          var resultCount = results.features.length;
 			          console.log(results.features.length, "resultCount");
 					var statsContent = "";
-					statsContent+="<table  id= \"statsTable\" class=\"display\" cellspacing=\"0\" width=\"100%\"> <thead><tr><th>Parking place</th> <th> Times accessed today</th><th>Available</th>  </tr></thead><tbody>"
+					statsContent+="<table  id= \"statsTable\" class=\"display\" cellspacing=\"0\" width=\"100%\"> <thead><tr><th>Parking place</th> <th> Last occupied</th><th> Average time occupied (min)</th><th> Times accessed</th><th>Available</th>  </tr></thead><tbody>"
 				         
 					for (var i = 0; i < resultCount; i++) 
 					{
-						statsContent+="<tr><td>"+results.features[i].attributes["LotID"]+"</td><td>"+results.features[i].attributes["AvailabilityRate"]+"</td>+<td>"+results.features[i].attributes["Available"]+"</td></tr>";
+						statsContent+="<tr><td>"+results.features[i].attributes["LotID"]+"</td><td>"+results.features[i].attributes["DisabledParking"]+"</td><td>"+results.features[i].attributes["AccessType"]+"</td><td>"+results.features[i].attributes["AvailabilityRate"]+"</td>+<td>"+results.features[i].attributes["Available"]+"</td></tr>";
 				    }
 					statsContent+="</tbody></table>";
 					
